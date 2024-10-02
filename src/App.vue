@@ -1,14 +1,17 @@
 <template>
   
     <div id="app">
-      <ParticleEffect />
+    
+     
       <NavBar />
       <router-view />
+      <DockHub />
     </div>
 </template>
 <script setup>
 import NavBar from './components/NavBar.vue'
-import ParticleEffect from './components/ParticleEffect.vue';
+
+import DockHub from './components/DockHub.vue';
 </script>
 <style>
 #app {
@@ -17,6 +20,7 @@ import ParticleEffect from './components/ParticleEffect.vue';
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  background-color: black;
 }
 
 nav {

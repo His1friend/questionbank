@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import axios from 'axios'
 import HomeView from '../views/HomeView.vue'
 import NavBar from '@/components/NavBar.vue'
 import QuestionCreate from '@/views/QuestionCreate.vue'
@@ -21,7 +22,7 @@ const routes = [
   {
     path: '/QuestionController',
     name: 'QuestionController',
-    meta: { requiresAuth: false },
+    meta: { requiresAuth: true },
     children: [
       { path: 'QuestionList', component: QuestionList },  // 不需要斜杠
       { path: 'QuestionCreate', component: QuestionCreate },
@@ -29,7 +30,8 @@ const routes = [
       { path: 'QuestionDetail', component: QuestionDetail },
       { path:'StateView',component:StateView}
     ],
-    component: ControllerView
+    component: ControllerView,
+    
   },
   {
     path: '/about',
@@ -49,25 +51,25 @@ const routes = [
     path:'/create',
     name:'QuestionCreate',
     component:QuestionCreate,
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
   {
     path:'/detail',
     name:'QuestionDetail',
     component:QuestionDetail,
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
   {
     path:'/list',
     name:'QuestionList',
     component:QuestionList,
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
   {
     path:'/exam',
     name:'exam',
     component:ExamView,
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
   { path: '/login', component: LoginView }
 ]
@@ -78,26 +80,52 @@ const router = createRouter({
   routes
 })
 router.beforeEach(async (to, from, next) => {
-  const token = localStorage.getItem('token');
+  const token = getCookie('token');
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const isLoginPage = to.path === '/login';
- if (requiresAuth && !token) {
-  
-    next('/login');
-    return;
+  const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
+  console.log('Token:', token);
+  console.log('Requires Auth:', requiresAuth);
+  console.log('Is Login Page:', isLoginPage);
+
+  if (requiresAuth) {
+    if (!token) {
+      console.log('No token found, redirecting to login.');
+      next(`/login?redirect=${encodeURIComponent(to.fullPath)}`);
+      return;
+    }
+
+    // 这里可以添加 token 有效性检查逻辑
+    const isValidToken = await validateToken(token);
+    if (!isValidToken) {
+      console.log('Invalid token, redirecting to login.');
+      localStorage.removeItem('token');
+      next(`/login?redirect=${encodeURIComponent(to.fullPath)}`);
+      return;
+    }
   }
 
   if (isLoginPage && token) {
-
-    next('/');
+    console.log('User is logged in, redirecting to home.');
+    next(redirect);
     return;
   }
 
-  // If you have any async operations, handle them here
-  // await someAsyncFunction();
-
-
+  console.log('Proceeding to next route.');
   next();
 });
+async function validateToken(token) {
+  try {
+    const response = await axios.post('/users/validate-token', { token }); // 请求后端验证 token
+    return response.data; // 根据返回的数据判断 token 是否有效
+  } catch (error) {
+    return false; // 出现错误则视为无效 token
+  }
+}
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
 console.log(router.getRoutes());
 export default router

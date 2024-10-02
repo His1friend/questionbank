@@ -46,6 +46,7 @@
   </script>
   <style scoped>
   .el-menu-demo {
+    border-radius: 20px;
     display: flex;
     justify-content: space-between; /* 分散对齐子项 */
   }
@@ -77,6 +78,7 @@
   flex-direction: column;
   align-items: left;
   background-color: #c68121;
+  border-radius: 20px;
 }
   </style>
   
