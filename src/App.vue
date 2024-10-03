@@ -1,16 +1,16 @@
 <template>
-  
+  <div>
+    <ParticleEffect/>
     <div id="app">
-    
-     
       <NavBar />
       <router-view />
       <DockHub />
     </div>
+    </div>
 </template>
 <script setup>
 import NavBar from './components/NavBar.vue'
-
+import ParticleEffect from './components/ParticleEffect.vue';
 import DockHub from './components/DockHub.vue';
 </script>
 <style>

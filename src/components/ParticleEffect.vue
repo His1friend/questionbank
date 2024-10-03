@@ -45,11 +45,10 @@ onMounted(() => {
         particle.x = Math.random() * width;
         particle.y = 0;
       }
-
       // 绘制流星
       ctx.beginPath();
       ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(129,26,156 , ${particle.brightness})`;
+      ctx.fillStyle = `rgba(20,197,171, ${particle.brightness})`;
       ctx.fill();
     });
 
@@ -76,6 +75,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  z-index: 0;
 }
 canvas {
   display: block;

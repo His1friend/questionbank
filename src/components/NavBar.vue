@@ -58,12 +58,14 @@
     width: 100px;
   height: auto;
   margin-right: 10px;
+  z-index: 1;
   }
   .logo-text{
     color: #0b7df0;
   font-size: 30px;
   font-weight: bold;
   margin-right: 10px;
+  z-index: 1;
 
   }
   .logo-container {
@@ -72,6 +74,7 @@
   align-items: center;
   width: 100%;
   padding: 10px;
+  z-index: 1;
 }
   .menu-container {
   display: flex;
