@@ -7,9 +7,9 @@
       :default-active="activeIndex"
       class="el-menu-demo"
       mode="horizontal"
-      background-color="#545c64"
+      background-color="#000000"
       text-color="#fff"
-      active-text-color="#ffd04b"
+      active-text-color="#00FFFF"
     >
 
       <el-menu-item index="1" @click="handleSelect('home')">
@@ -59,9 +59,10 @@
   height: auto;
   margin-right: 10px;
   z-index: 1;
+  background-color: rgba(255, 255, 255, 0.1);
   }
   .logo-text{
-    color: #0b7df0;
+    color: #00FFFF;
   font-size: 30px;
   font-weight: bold;
   margin-right: 10px;
@@ -72,9 +73,10 @@
   display: flex;
   justify-content: space-between; /* Space between logo and text */
   align-items: center;
-  width: 100%;
+  width: 50%;
   padding: 10px;
   z-index: 1;
+  background-color: rgba(255, 255, 255, 0);
 }
   .menu-container {
   display: flex;

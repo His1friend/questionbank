@@ -1,84 +1,80 @@
 <template>
-  <div class="particle-background">
-    <canvas ref="canvas"></canvas>
-  </div>
+  <canvas ref="canvas" class="code-rain"></canvas>
 </template>
 
-<script setup>
-import { onMounted, ref } from 'vue';
+<script>
+export default {
+  data() {
+    return {
+      columns: [], // 存储每列的字符
+      fontSize: 16,
+      fallingChars: [], // 存储下落的字符
+      dropSpeed: 5, // 字符下落速度
+    };
+  },
+  mounted() {
+    this.initCanvas();
+    this.startRain();
+  },
+  methods: {
+    initCanvas() {
+      const canvas = this.$refs.canvas;
+      this.ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      this.columns = Math.floor(canvas.width / this.fontSize);
+      this.fallingChars = Array(this.columns).fill(0);
+    },
+    startRain() {
+      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      const characterArray = characters.split("");
 
-const canvas = ref(null);
+      const draw = () => {
+        // 设置背景颜色，带透明度
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
-onMounted(() => {
-  const ctx = canvas.value.getContext('2d');
-  let width = canvas.value.width = window.innerWidth;
-  let height = canvas.value.height = window.innerHeight;
+        for (let i = 0; i < this.columns; i++) {
+          const char = characterArray[Math.floor(Math.random() * characterArray.length)];
+          const x = i * this.fontSize;
+          const y = this.fallingChars[i] * this.fontSize;
 
-  const particles = [];
-  const numParticles = 20; // 减少数量
+          // 随机生成颜色
+          const color = this.getRandomColor();
+          this.ctx.fillStyle = color;
+          this.ctx.font = `${this.fontSize}px monospace`;
+          this.ctx.fillText(char, x, y);
 
-  // 生成随机粒子
-  for (let i = 0; i < numParticles; i++) {
-    particles.push({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: Math.random() * 6 + 4,  // 增大流星体积
-      speedX: Math.random() * 2 - 1,
-      speedY: Math.random() * 5 + 3,
-      brightness: Math.random() * 0.5 + 0.5,
-      angle: Math.random() *1+90 // 不同角度的流星
-    });
-  }
+          if (y > this.ctx.canvas.height && Math.random() > 0.975) {
+            this.fallingChars[i] = 0; // 重置字符位置
+          }
 
-  function animate() {
-    // 为了实现拖尾效果，使用半透明背景而不是清空整个画布
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';  // 0.1 使之前的绘制稍微可见，产生拖尾
-    ctx.fillRect(0, 0, width, height);
+          this.fallingChars[i] += this.dropSpeed / this.fontSize; // 控制下落速度
+        }
 
-    particles.forEach(particle => {
-      // 更新粒子位置
-      particle.x += particle.speedX;
-      particle.y += particle.speedY;
+        requestAnimationFrame(draw);
+      };
 
-      // 如果流星超过屏幕边界，将其重置到右上角
-      if (particle.x > width || particle.y > height) {
-        particle.x = Math.random() * width;
-        particle.y = 0;
+      draw();
+    },
+    // 生成随机颜色
+    getRandomColor() {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
       }
-      // 绘制流星
-      ctx.beginPath();
-      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(20,197,171, ${particle.brightness})`;
-      ctx.fill();
-    });
-
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-
-  // 监听窗口大小调整
-  window.addEventListener('resize', () => {
-    canvas.value.width = window.innerWidth;
-    canvas.value.height = window.innerHeight;
-    width = canvas.value.width;
-    height = canvas.value.height;
-  });
-});
+      return color;
+    },
+  },
+};
 </script>
 
 <style scoped>
-.particle-background {
-  position: absolute;
+.code-rain {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 0;
-}
-canvas {
-  display: block;
-  color: #811A9C;
+  z-index: -1;
 }
 </style>

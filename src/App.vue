@@ -1,7 +1,8 @@
 <template>
   <div>
-    <ParticleEffect/>
+
     <div id="app">
+          <ParticleEffect/>
       <NavBar />
       <router-view />
       <DockHub />
@@ -20,7 +21,7 @@ import DockHub from './components/DockHub.vue';
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  background-color: black;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 nav {

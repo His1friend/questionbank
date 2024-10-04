@@ -2,11 +2,18 @@
   <div class="carousel-container">
     <div class="carousel-mask">
       <div class="ellipse-top"></div>
-      <div class="carousel-content">
+      <div class="carousel-content" :style="{ animationDuration: `${animationDuration}s` }">
         <img
           v-for="(image, index) in images"
           :key="index"
           :src="image"
+          class="carousel-image"
+          alt="Carousel Image"
+        />
+        <!-- 重复第一张图片以实现无缝循环 -->
+        <img
+          v-if="images.length > 0"
+          :src="images[0]"
           class="carousel-image"
           alt="Carousel Image"
         />
@@ -25,7 +32,12 @@ export default {
         "https://via.placeholder.com/400x200?text=Image2",
         "https://via.placeholder.com/400x200?text=Image3",
         "https://via.placeholder.com/400x200?text=Image4",
+        "https://via.placeholder.com/400x200?text=Image5",
+        "https://via.placeholder.com/400x200?text=Image6",
+        "https://via.placeholder.com/400x200?text=Image7",
+        "https://via.placeholder.com/400x200?text=Image8",
       ],
+      animationDuration: 12, // 动画总时长，单位为秒
     };
   },
 };
@@ -73,26 +85,25 @@ export default {
   display: flex;
   position: absolute;
   top: 0;
-  left: 0;
-  animation: slide 15s linear infinite; /* 图片从左到右移动 */
+  left: 0; /* 从左侧开始 */
+  animation: slide linear infinite; /* 图片从左到右移动 */
 }
 
 /* 图片样式 */
 .carousel-image {
-  width: 800px;
+  width: 800px; /* 调整为您需要的宽度 */
   height: 400px;
   object-fit: cover;
-  margin-right: 10px; /* 图片之间的间距 */
-  z-index: 0;
+  margin-right: 20px; /* 图片之间的间距 */
 }
 
 /* 图片从左到右的动画 */
 @keyframes slide {
   0% {
-    left: -100%; /* 初始位置在左侧 */
+    transform: translateX(0%); /* 开始位置 */
   }
   100% {
-    left: 100%; /* 最终位置在右侧 */
+    transform: translateX(-70%); /* 结束位置，完全移出视口 */
   }
 }
 </style>
