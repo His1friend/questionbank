@@ -2,6 +2,7 @@
   <div>
 
     <div id="app">
+      
           <ParticleEffect/>
       <NavBar />
       <router-view />

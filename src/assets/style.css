@@ -8,10 +8,6 @@ body {
   color: #f8fafc; /* Slate color for the text */
 }
 
-.property-shimmer {
-  @apply inline-block; /* 添加一些默认样式 */
-}
-
 @property --shimmer-angle {
   syntax: '<angle>';
   initial-value: 0deg;

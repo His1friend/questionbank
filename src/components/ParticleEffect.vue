@@ -26,7 +26,7 @@ export default {
       this.fallingChars = Array(this.columns).fill(0);
     },
     startRain() {
-      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      const characters = "傻逼张振泰";
       const characterArray = characters.split("");
 
       const draw = () => {
