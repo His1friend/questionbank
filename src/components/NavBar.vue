@@ -8,8 +8,7 @@
         <span class="button-text">题库系统</span>
       </button>
     </div>
-    <div class="menu-container">
-     
+         
     <el-menu
       :default-active="activeIndex"
       class="el-menu-demo"
@@ -36,7 +35,7 @@
         <el-menu-item index="5-2" @click="handleSelect('logout')">退出登录</el-menu-item>
       </el-submenu>
     </el-menu>
-    </div>
+    
   </template>
   <script>
   export default {

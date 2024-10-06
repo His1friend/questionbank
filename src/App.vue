@@ -2,8 +2,8 @@
   <div>
 
     <div id="app">
-      
-          <ParticleEffect/>
+    
+      <ParticleEffect/>
       <NavBar />
       <router-view />
       <DockHub />

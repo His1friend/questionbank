@@ -3,53 +3,81 @@
     <div class="space"></div>
     <div class="dock-container">
       <el-button
-      class="dock-item"
-      @click="openApp(dockItems[0])"
-      :style="{ margin: '0 15px' }"
-    >
-    <el-icon><HomeFilled /></el-icon>
-      
-    </el-button>
-    <el-button
-      class="dock-item"
-      @click="openApp(dockItems[1])"
-      :style="{ margin: '0 15px' }"
-    >
-    <el-icon><Goods /></el-icon>
-    </el-button>
-    <el-button
-      class="dock-item"
-      @click="openApp(dockItems[2])"
-      :style="{ margin: '0 15px' }"
-    >
-    <el-icon><Coordinate /></el-icon>
-    </el-button>
+        class="dock-item"
+        @click="openApp(dockItems[0])"
+        :style="{ margin: '0 15px' }"
+      >
+        <el-icon><HomeFilled /></el-icon>
+      </el-button>
+      <el-button
+        class="dock-item"
+        @click="openApp(dockItems[1])"
+        :style="{ margin: '0 15px' }"
+      >
+        <el-icon><Goods /></el-icon>
+      </el-button>
+      <el-button
+        class="dock-item"
+        @click="openApp(dockItems[2])"
+        :style="{ margin: '0 15px' }"
+      >
+        <el-icon><Coordinate /></el-icon>
+      </el-button>
     </div>
     <div class="space"></div>
+
+    <!-- 这里是 ChatDiolog 组件的条件渲染 -->
+   
   </div>
+  <ChatDiolog v-if="isChatDialogVisible" />
 </template>
 
 <script>
+import { ref } from 'vue'; // 导入 ref
 import { Coordinate, Goods, HomeFilled } from '@element-plus/icons';
+import ChatDiolog from './ChatDiolog.vue';
 
 export default {
-  methods: 
-  {
-    openApp(item) {
-      console.log(`打开应用: ${item.title}`);
-      // 在这里添加打开应用的逻辑
-    },
-  },
-  components:{
+  name: 'DockHub',
+  components: {
+    ChatDiolog, // 确保 ChatDiolog 被注册
     Goods,
     HomeFilled,
-    Coordinate
+    Coordinate,
+  },
+  setup() {
+    const isChatDialogVisible = ref(false); // 用于控制 ChatDiolog 的显示状态
 
-  }
+    // dockItems 数组
+    const dockItems = [
+      { title: '应用1' },
+      { title: '应用2' }, // 这里可以是 ChatDialog
+      { title: '应用3' },
+    ];
+
+    const openApp = (item) => {
+      console.log(`打开应用: ${item.title}`);
+      // 检查点击的应用是否为 ChatDialog
+      if (item.title === '应用2') {
+        isChatDialogVisible.value = !isChatDialogVisible.value; // 切换 ChatDialog 的可见性
+      }
+      // 其他应用的逻辑...
+    };
+
+    return {
+      dockItems,
+      openApp,
+      isChatDialogVisible,
+    };
+  },
 };
 </script>
 
 <style scoped>
+.space {
+  /* 添加空间样式 */
+  height: 20px; 
+}
 .dock {
   position: fixed;
   bottom: 20px; /* 将 Dock 置于底部 */
@@ -83,3 +111,4 @@ export default {
   transform:translateY(-10px) scale(1.2); /* 鼠标悬停时放大 */
 }
 </style>
+
