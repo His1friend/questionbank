@@ -22,7 +22,7 @@ import DockHub from './components/DockHub.vue';
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255);
 }
 
 nav {
@@ -31,7 +31,7 @@ nav {
 
 nav a {
   font-weight: bold;
-  color: #2c3e50;
+  color: #0f549d;
 }
 
 nav a.router-link-exact-active {

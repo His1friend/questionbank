@@ -65,7 +65,11 @@ export default {
   top: 0;
   width: 100%;
   height: 50%;
-  background-color: black; /* 遮罩颜色 */
+  background: linear-gradient(
+    to right,
+    rgb(113, 65, 168),
+    rgba(44, 114, 251, 1)
+  ); /* 遮罩颜色 */
   clip-path: ellipse(60% 40% at 50% 0%); /* 顶部椭圆 */
   z-index: 1; /* 在内容上方 */
 }
@@ -76,7 +80,11 @@ export default {
   bottom: 0;
   width: 100%;
   height: 50%;
-  background-color: black; /* 遮罩颜色 */
+  background: linear-gradient(
+    to right,
+    rgb(113, 65, 168),
+    rgba(44, 114, 251, 1)
+  ); /* 遮罩颜色 */
   clip-path: ellipse(60% 40% at 50% 100%); /* 底部椭圆 */
   z-index: 1; /* 在内容上方 */
 }

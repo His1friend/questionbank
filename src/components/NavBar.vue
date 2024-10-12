@@ -10,13 +10,12 @@
     </div>
          
     <el-menu
-      :default-active="activeIndex"
-      class="el-menu-demo"
-      mode="horizontal"
-      background-color="#000000"
-      text-color="#fff"
-      active-text-color="#00FFFF"
-    >
+  :default-active="activeIndex"
+  class="el-menu-demo menu-gradient"
+  mode="horizontal"
+  text-color="#fff"
+  active-text-color="#002FFF"
+>
 
       <el-menu-item index="1" @click="handleSelect('home')">
         <i class="el-icon-house"></i> 首页
@@ -52,6 +51,10 @@
   };
   </script>
   <style scoped>
+  .menu-gradient {
+  background-image: linear-gradient(to right, rgb(113, 65, 168), rgba(44, 114, 251, 1));
+}
+
   .el-menu-demo {
     border-radius: 20px;
     display: flex;
@@ -66,8 +69,9 @@
   height: auto;
   margin-right: 10px;
   z-index: 1;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgb(22, 55, 164);
   }
+  
   .logo-text{
     color: #00FFFF;
   font-size: 30px;
@@ -83,7 +87,7 @@
   width: 50%;
   padding: 10px;
   z-index: 1;
-  background-color: rgba(255, 255, 255, 0);
+  background-color: rgba(255, 255, 255,0.1);
 }
   .menu-container {
   display: flex;
@@ -144,7 +148,7 @@
     left: 2px; /* 左偏移 */
     right: 2px; /* 右偏移 */
     bottom: 2px; /* 下偏移 */
-    background-color: #000000; /* 背景颜色 */
+    background-color: #0c5493; /* 背景颜色 */
     border-radius: 22px; /* 边角圆滑 */
     z-index: -1; /* 置于下方 */
   }
