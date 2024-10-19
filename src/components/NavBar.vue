@@ -13,7 +13,7 @@
   :default-active="activeIndex"
   class="el-menu-demo menu-gradient"
   mode="horizontal"
-  text-color="#fff"
+  text-color="#87CEFA"
   active-text-color="#002FFF"
 >
 
@@ -127,7 +127,7 @@
   /* 按钮文字 */
   .button-text {
     position: relative; /* 文字相对位置 */
-    color: #f8fafc; /* 文字颜色 */
+    color: #3d9912; /* 文字颜色 */
   }
   
   /* 动画关键帧 */
