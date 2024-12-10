@@ -10,7 +10,8 @@
         <label for="password">密码:</label>
         <input type="password" v-model="password" id="password" required />
       </div>
-      <button type="submit">登录</button>
+      <button type="submit" style="margin-bottom: 10px;">登录</button>
+      <button type="button" @click="router.push('/register')">注册</button>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </div>
@@ -20,11 +21,13 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'
 import axios from 'axios';
+import { useUserStore } from '../store/index';
 import Cookies from 'js-cookie';
 const router = useRouter();
 const username = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const userStore = useUserStore();
 
 const handleSubmit = async () => {
   try {
@@ -36,9 +39,14 @@ const handleSubmit = async () => {
       username: username.value,
       password: password.value,
     });
+    userStore.setUser({
+        userName: response.data.user.memberName,
+        userId: response.data.user.uid,
+        role: response.data.user.role,
+      });
     console.log('当前 URL:', window.location.href);
     console.log('登录成功:', response.data);
-    const token = response.data; // 根据您的后端返回格式获取令牌
+    const token = response.data.token; // 根据您的后端返回格式获取令牌
     Cookies.set('token', token, { expires: 7 });
     
     console.log(redirect);

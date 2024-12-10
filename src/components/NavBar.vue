@@ -26,17 +26,21 @@
       <el-menu-item index="3" @click="handleSelect('exam')">
         <i class="el-icon-notebook-2"></i> 考试
       </el-menu-item>
+      <el-menu-item index="3" @click="handleSelect('KnowledgeMap')">
+        <i class="el-icon-notebook-2"></i> 知识图谱
+      </el-menu-item>
       <el-submenu index="5" class="menu-item-right">
         <template #title>
           <i class="el-icon-user"></i> 用户
         </template>
-        <el-menu-item index="5-1" @click="handleSelect('profile')">个人中心</el-menu-item>
-        <el-menu-item index="5-2" @click="handleSelect('logout')">退出登录</el-menu-item>
+        <el-menu-item index="5-1" @click="handleSelect('about')">个人中心</el-menu-item>
+        <el-menu-item index="5-2" @click="logout">退出登录</el-menu-item>
       </el-submenu>
     </el-menu>
     
   </template>
   <script>
+  import { ElMessage } from 'element-plus';
   export default {
     data() {
       return {
@@ -46,9 +50,25 @@
     methods: {
       handleSelect(route) {
         this.$router.push({ name: route });
+      },
+      logout() {
+        try {
+        // 调用后端注销接口 (假设 /api/logout 是注销接口)
+
+        // 清除 Cookie（可选，确保和后端保持一致）
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+
+        // 提示成功信息
+        ElMessage.success('已成功退出登录');
+      } catch (error) {
+        console.error('注销失败:', error);
+        ElMessage.error('退出登录失败，请稍后再试');
+      } finally {
+        // 跳转到登录页面
+        this.$router.push({ name: 'home' });
       }
-    }
-  };
+    },
+  },};
   </script>
   <style scoped>
   .menu-gradient {

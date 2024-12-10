@@ -48,6 +48,13 @@ const routes = [
 
   },
   {
+    path:'/KnowledgeMap',
+    name:'KnowledgeMap',
+    component: () => import('@/views/KnowledgeMap.vue'),
+
+  },
+  
+  {
     path:'/create',
     name:'QuestionCreate',
     component:QuestionCreate,
@@ -57,7 +64,7 @@ const routes = [
     path:'/detail',
     name:'QuestionDetail',
     component:QuestionDetail,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: false }
   },
   {
     path:'/list',
@@ -71,7 +78,26 @@ const routes = [
     component:ExamView,
     meta: { requiresAuth: true }
   },
-  { path: '/login', component: LoginView }
+  { path: '/login', 
+    component: LoginView 
+  },
+  {
+    path:'/register',
+    name:'register',
+    component: () => import('@/views/RegisterView.vue'),
+  },
+  {
+    path:'/edit',
+    name:'EditQuestion',
+    component:EditQuestion,
+    meta: { requiresAuth: true }
+  },
+  {
+    path:'/CaptchaView',
+    name:'CaptchaView',
+    component: () => import('@/views/CaptchaView.vue'),
+  },
+
 ]
 
 

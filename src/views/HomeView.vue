@@ -28,7 +28,7 @@ export default {
   data() {
     return {
       images: [
-        "https://via.placeholder.com/400x200?text=Image1",
+        "src\\assets\\OIP.jpg",
         "https://via.placeholder.com/400x200?text=Image2",
         "https://via.placeholder.com/400x200?text=Image3",
         "https://via.placeholder.com/400x200?text=Image4",
