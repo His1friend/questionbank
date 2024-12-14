@@ -114,7 +114,7 @@
           </div>
   
           <!-- 统计信息 -->
-          <div class="statistics">
+          <!-- <div class="statistics">
             <span>通过率:</span>
             <div class="progress-bar">
               <div 
@@ -124,7 +124,7 @@
             </div>
             <span>{{ calculatePassRate }}%</span>
             <span>({{ question.passedNumber }}/{{ question.totalNumber }})</span>
-          </div>
+          </div> -->
         </div>
       </template>
     </div>
@@ -159,12 +159,12 @@
     }
   })
   
-  const calculatePassRate = computed(() => {
+ /*  const calculatePassRate = computed(() => {
     if (!question.value) return 0
     const { passedNumber, totalNumber } = question.value
     if (!totalNumber) return 0
     return ((passedNumber / totalNumber) * 100).toFixed(1)
-  })
+  }) */
   
   // 方法定义
   const getCategoryLabel = (categoryId) => {
@@ -241,7 +241,8 @@
   
     try {
       loading.value = true
-      const response = await axios.put(`/questions/${props.qid}`, question.value)
+      console.log(question.value)
+      const response = await axios.put(`/questions/update`, question.value)
       if (response.data.code === 1) {
         alert('题目更新成功！')
       } else {
