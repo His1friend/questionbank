@@ -1,33 +1,26 @@
 <template>
   <div class="dock">
-    <div class="space"></div>
-    <div class="dock-container">
-      <el-button
-        class="dock-item"
-        @click="openApp(dockItems[0])"
-        :style="{ margin: '0 15px' }"
-      >
-        <el-icon><HomeFilled /></el-icon>
-      </el-button>
-      <el-button
-        class="dock-item"
-        @click="openApp(dockItems[1])"
-        :style="{ margin: '0 15px' }"
-      >
-        <el-icon><Goods /></el-icon>
-      </el-button>
-      <el-button
-        class="dock-item"
-        @click="openApp(dockItems[2])"
-        :style="{ margin: '0 15px' }"
-      >
-        <el-icon><Coordinate /></el-icon>
-      </el-button>
-    </div>
-    <div class="space"></div>
-
-    <!-- 这里是 ChatDiolog 组件的条件渲染 -->
-   
+    <el-button
+      class="dock-item"
+      @click="openApp(dockItems[0])"
+      :style="{ margin: '0 15px' }"
+    >
+      <el-icon><HomeFilled /></el-icon>
+    </el-button>
+    <el-button
+      class="dock-item"
+      @click="openApp(dockItems[1])"
+      :style="{ margin: '0 15px' }"
+    >
+      <el-icon><Goods /></el-icon>
+    </el-button>
+    <el-button
+      class="dock-item"
+      @click="openApp(dockItems[2])"
+      :style="{ margin: '0 15px' }"
+    >
+      <el-icon><Coordinate /></el-icon>
+    </el-button>
   </div>
   <ChatDiolog v-if="isChatDialogVisible" />
 </template>
@@ -74,26 +67,16 @@ export default {
 </script>
 
 <style scoped>
-.space {
-  /* 添加空间样式 */
-  height: 20px; 
-}
 .dock {
   position: fixed;
   bottom: 20px; /* 将 Dock 置于底部 */
-  left: 50%;
-  transform: translateX(-50%);
+  right: 20px; /* 将 Dock 固定在右侧 */
   display: flex;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
-
-.dock-container {
-  display: flex;
-  align-items: center;
 }
 
 .dock-item {
@@ -104,11 +87,14 @@ export default {
   justify-content: center;
   align-items: center;
   transition: transform 0.3s;
-  background-color: #000000;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 .dock-item:hover {
-  transform:translateY(-10px) scale(1.2); /* 鼠标悬停时放大 */
+  transform: translateY(-10px) scale(1.2); /* 鼠标悬停时放大 */
 }
 </style>
+
+
 
