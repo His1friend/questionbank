@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <svg ref="networkRef" width="700" height="700"></svg>
+  <div class="network-container">
+    <svg ref="networkRef" width="700" height="700" display: block></svg>
     <div class="tooltip" ref="tooltipRef"></div>
-    <el-dialog v-model="dialogVisible" title="编辑节点详情">
+    <el-dialog v-model="dialogVisible" >
       <el-form :model="selectedNode" label-width="100px">
         <el-form-item label="ID">
           <el-input v-model="selectedNode.id" disabled></el-input>
@@ -12,6 +12,21 @@
         </el-form-item>
         <el-form-item label="Description">
           <el-input v-model="selectedNode.description" type="textarea"></el-input>
+        </el-form-item>
+        <el-form-item label="题目">
+          <el-table :data="filteredQuestionList" style="width: 100%" @row-click="selectQuestion">
+            <el-table-column prop="qid" label="题目 ID" width="100" />
+            <el-table-column prop="questionName" label="题目" />
+            <el-table-column label="题型" width="120">
+              <template #default="scope">
+                <span>{{ categoryMap[scope.row.categoryId] || '未知题型' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="difficultyLevel" label="难度" />
+            <el-table-column prop="passedNumber" label="通过次数" />
+            <el-table-column prop="totalNumber" label="总数" />
+            <el-table-column prop="knowledgeNode" label="知识点" />
+          </el-table>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -25,7 +40,7 @@
 </template>
 
 <script>
-import { onMounted, ref, nextTick } from 'vue';
+import { onMounted, ref, nextTick, watch, onUnmounted } from 'vue';
 import * as d3 from 'd3';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
@@ -36,14 +51,17 @@ export default {
     const tooltipRef = ref(null);
     const dialogVisible = ref(false);
     const selectedNode = ref({});
-    const tableData = ref([]); 
-    let simulation; 
+    const tableData = ref([]);
+    const questionList = ref([]);
+    let simulation;
+    let resizeObserver;
 
     const getRelationColor = (relation) => {
       const colorMap = {
         'parent': '#FF6B88',     // 粉红色，代表父关系
         'child': '#FFA726',       // 橙色，代表子关系
-        'default': '#4A90E2'      // 蓝色，默认关系
+        'default': '#4A90E2',      // 蓝色，默认关系
+        'bro': '#64D3DD'
       };
       return colorMap[relation] || colorMap['default'];
     };
@@ -56,7 +74,8 @@ export default {
         const formattedNodes = nodes.map(node => ({
           id: node.kid,
           label: node.kname,
-          description: node.description
+          description: node.description,
+          questionId: node.questionId || '' // 假设节点有一个 questionId 字段
         }));
 
         const formattedEdges = edges.map(edge => ({
@@ -65,12 +84,39 @@ export default {
           relation: edge.relation
         }));
 
-        await nextTick(); 
+        await nextTick();
         createNetwork(formattedNodes, formattedEdges);
-        tableData.value = formattedNodes; 
+        tableData.value = formattedNodes;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
+    };
+
+    const fetchQuestions = async () => {
+      try {
+        console.log("Fetching questions...");
+        const response = await axios.get('/questions/list');
+        if (response.data.code === 1) {
+          questionList.value = response.data.data; // 将后端数据赋值给题目列表
+          console.log("Fetched questions successfully:", questionList.value);
+        } else {
+          console.error('获取题目数据失败:', response.data.msg);
+        }
+      } catch (error) {
+        console.error('请求题目数据失败:', error);
+      }
+    };
+
+    const filterQuestionsByKid = (kid) => {
+      console.log("Filtering questions by kid:", kid);
+      const filteredQuestions = questionList.value.filter(question => question.knowledgeNode === kid);
+      console.log("Filtered questions:", filteredQuestions);
+      return filteredQuestions;
+    };
+
+    const selectQuestion = (row) => {
+      console.log("Selected question:", row);
+      selectedNode.value.questionId = row.qid;
     };
 
     const createNetwork = (nodes, links) => {
@@ -118,7 +164,7 @@ export default {
 
         // 添加连接线
         const linkGroup = svg.append("g").attr("class", "links");
-       /*  const links_selection =  */linkGroup
+        linkGroup
           .selectAll("line")
           .data(links)
           .enter().append("line")
@@ -183,6 +229,7 @@ export default {
           })
           .on("click", function(event, d) {
             selectedNode.value = { ...d }; 
+            fetchQuestions(); // 获取题目列表
             dialogVisible.value = true;
           })
           .call(d3.drag()
@@ -219,8 +266,6 @@ export default {
         });
     };
 
-
-    // 拖拽和保存方法与之前相同
     const dragstarted = (event, d) => {
       if (!event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
@@ -243,7 +288,8 @@ export default {
         await axios.put('/knowledge/node', {
           kid: selectedNode.value.id,
           kname: selectedNode.value.label,
-          description: selectedNode.value.description
+          description: selectedNode.value.description,
+          questionId: selectedNode.value.questionId
         });
         ElMessage.success('更新成功');
 
@@ -251,6 +297,7 @@ export default {
         if (updatedNodeIndex !== -1) {
           tableData.value[updatedNodeIndex].label = selectedNode.value.label;
           tableData.value[updatedNodeIndex].description = selectedNode.value.description;
+          tableData.value[updatedNodeIndex].questionId = selectedNode.value.questionId;
         }
 
         dialogVisible.value = false;
@@ -260,18 +307,81 @@ export default {
       }
     };
 
+    const filteredQuestionList = ref([]);
+
+    const throttle = (func, limit) => {
+      let lastFunc;
+      let lastRan;
+      return function() {
+        const context = this;
+        const args = arguments;
+        if (!lastRan) {
+          func.apply(context, args);
+          lastRan = Date.now();
+        } else {
+          clearTimeout(lastFunc);
+          lastFunc = setTimeout(function() {
+            if ((Date.now() - lastRan) >= limit) {
+              func.apply(context, args);
+              lastRan = Date.now();
+            }
+          }, limit - (Date.now() - lastRan));
+        }
+      };
+    };
+
+    const handleResize = throttle(() => {
+      const svg = d3.select(networkRef.value);
+      if (!svg.empty() && simulation) {
+        const width = +svg.attr("width");
+        const height = +svg.attr("height");
+        simulation.force("center", d3.forceCenter(width / 2, height / 2)).alphaTarget(0.3).restart();
+      }
+    }, 200);
+
+    const categoryMap = {
+      1: '单选题',
+      2: '多选题',
+      3: '判断题',
+      4: '填空题',
+      5: '简答题'
+    };
 
     onMounted(() => {
       fetchData();
+      fetchQuestions(); // 初始化题目列表
+
+      resizeObserver = new ResizeObserver(handleResize);
+      resizeObserver.observe(networkRef.value);
     });
+
+    onUnmounted(() => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    });
+
+    watch(
+      () => selectedNode.value.id,
+      (newKid) => {
+        console.log("Selected node ID changed to:", newKid);
+        filteredQuestionList.value = filterQuestionsByKid(newKid);
+      }
+    );
 
     return {
       networkRef,
       tooltipRef,
       dialogVisible,
       selectedNode,
-      saveChanges: saveChanges,
-      tableData
+      saveChanges,
+      tableData,
+      questionList,
+      filteredQuestionList,
+      fetchQuestions,
+      filterQuestionsByKid,
+      selectQuestion,
+      categoryMap
     };
   }
 };
@@ -302,4 +412,14 @@ export default {
 .link {
   transition: opacity 0.3s ease;
 }
+
+.network-container {
+  width: 100%;
+  height: 100vh; /* 使用视窗单位 */
+  position: relative;
+  overflow: hidden;
+}
 </style>
+
+
+
