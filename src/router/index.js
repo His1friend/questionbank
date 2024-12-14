@@ -97,6 +97,29 @@ const routes = [
     name:'CaptchaView',
     component: () => import('@/views/CaptchaView.vue'),
   },
+  {
+    path:'/state',
+    name:'StateView',
+    component:StateView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path:'/404',
+    name:'404',
+    component: () => import('@/views/NotView.vue'),
+  },
+  {
+    path:'/:pathMatch(.*)*',
+    name:'notFound',
+    component: () => import('@/views/NotView.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path:'/questionupdater',
+    name:'questionupdater',
+    component: () => import('@/views/QuestionUpdateView.vue'),
+    meta: { requiresAuth: false }
+  }
 
 ]
 

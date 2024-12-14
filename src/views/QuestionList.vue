@@ -26,7 +26,8 @@
       </el-table-column>
     </el-table>
   </el-scrollbar>
-  <QuestionDetail v-if="dialogVisible" :qid="currentQid" />
+  <QuestionDetail v-if="detailVisible" :qid="currentQid" />
+  <QuestionUpdateView v-if="updateVisable" :qid="currentQid" />
 </template>
 
 <script setup>
@@ -34,10 +35,12 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus';
 import QuestionDetail from './QuestionDetail.vue';
 import axios from 'axios'
+import QuestionUpdateView from './QuestionUpdateView.vue';
 
 // 定义表格数据
 const tableData = ref([])
-const dialogVisible = ref(false);
+const detailVisible = ref(false);
+const updateVisable = ref(false);
 const currentQid = ref(null);
 const searchQuery = ref('');
 const categoryMap = {
@@ -97,7 +100,11 @@ const deleteQuestion = async (qid) => {
 
 const viewDetails = (qid) => {
   currentQid.value = qid;
-  dialogVisible.value = !dialogVisible.value;
+  detailVisible.value = !detailVisible.value;
+};
+const editQuestion = (qid) => {
+  currentQid.value = qid;
+  updateVisable.value = !updateVisable.value;
 };
 </script>
 
