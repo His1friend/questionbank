@@ -284,7 +284,7 @@ onMounted(() => {
   top: 50%;
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 10px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

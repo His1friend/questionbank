@@ -23,7 +23,8 @@
     "pinia": "^2.2.2",
     "v-drag": "^3.0.9",
     "vue": "^3.2.13",
-    "vue-router": "^4.0.3"
+    "vue-router": "^4.0.3",
+    "vue-virtual-scroller": "^2.0.0-beta.8"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
