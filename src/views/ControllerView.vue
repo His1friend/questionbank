@@ -11,8 +11,6 @@
               </template>
               <el-menu-item index="QuestionList">查看题目</el-menu-item>
               <el-menu-item index="QuestionCreate">添加题目</el-menu-item>
-              <el-menu-item index="EditQuestion">编辑题目</el-menu-item>
-              <el-menu-item index="QuestionDetail">删除题目</el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="1-5">
               <template #title>
