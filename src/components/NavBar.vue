@@ -1,214 +1,205 @@
 <template>
-      <div class="button-container">
-      <button
-        type="button"
-        class="shimmer-button"
-        aria-label="题库系统"
-      >
+  <div class="page-container">
+    <div class="button-container">
+      <button type="button" class="neo-button" aria-label="题库系统">
         <span class="button-text">题库系统</span>
+        <div class="button-glow"></div>
       </button>
     </div>
-         
-    <el-menu
-  :default-active="activeIndex"
-  class="el-menu-demo menu-gradient"
-  mode="horizontal"
-  text-color="#87CEFA"
-  active-text-color="#002FFF"
->
 
-      <el-menu-item index="1" @click="handleSelect('home')">
-        <i class="el-icon-house"></i> 首页
+    <el-menu
+      :default-active="activeIndex"
+      class="el-menu-demo cyber-menu"
+      mode="horizontal"
+      text-color="#E4F1FE"
+      active-text-color="#00FFFF"
+    >
+      <el-menu-item index="1" @click="handleSelect('home')" class="menu-item">
+        <i class="el-icon-house menu-icon"></i> 首页
       </el-menu-item>
-      <el-menu-item index="2" @click="handleSelect('QuestionController')">
-        <i class="el-icon-edit-outline"></i> 题库管理
+      <el-menu-item index="2" @click="handleSelect('QuestionController')" class="menu-item">
+        <i class="el-icon-edit-outline menu-icon"></i> 题库管理
       </el-menu-item>
-      <el-menu-item index="3" @click="handleSelect('exam')">
-        <i class="el-icon-notebook-2"></i> 考试
+      <el-menu-item index="3" @click="handleSelect('exam')" class="menu-item">
+        <i class="el-icon-notebook-2 menu-icon"></i> 考试
       </el-menu-item>
-      <el-menu-item index="3" @click="handleSelect('KnowledgeMap')">
-        <i class="el-icon-notebook-2"></i> 知识图谱
+      <el-menu-item index="4" @click="handleSelect('KnowledgeMap')" class="menu-item">
+        <i class="el-icon-notebook-2 menu-icon"></i> 知识图谱
       </el-menu-item>
       <el-submenu index="5" class="menu-item-right">
         <template #title>
-          <i class="el-icon-user"></i> 用户
+          <i class="el-icon-user menu-icon"></i> 用户
         </template>
         <el-menu-item index="5-1" @click="handleSelect('about')">个人中心</el-menu-item>
         <el-menu-item index="5-2" @click="logout">退出登录</el-menu-item>
       </el-submenu>
     </el-menu>
-    
-  </template>
-  <script>
-  import { ElMessage } from 'element-plus';
-  export default {
-    data() {
-      return {
-        activeIndex: '1',
-      };
+  </div>
+</template>
+
+<script>
+import { ElMessage } from 'element-plus';
+
+export default {
+  data() {
+    return {
+      activeIndex: '1',
+    };
+  },
+  methods: {
+    handleSelect(route) {
+      this.$router.push({ name: route });
     },
-    methods: {
-      handleSelect(route) {
-        this.$router.push({ name: route });
-      },
-      logout() {
-        try {
-        // 调用后端注销接口 (假设 /api/logout 是注销接口)
-
-        // 清除 Cookie（可选，确保和后端保持一致）
+    logout() {
+      try {
         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
-
-        // 提示成功信息
         ElMessage.success('已成功退出登录');
       } catch (error) {
         console.error('注销失败:', error);
         ElMessage.error('退出登录失败，请稍后再试');
       } finally {
-        // 跳转到登录页面
         this.$router.push({ name: 'home' });
       }
     },
-  },};
-  </script>
-  <style scoped>
-  .menu-gradient {
-  background-image: linear-gradient(to right, rgb(113, 65, 168), rgba(44, 114, 251, 1));
+  },
+};
+</script>
+
+<style scoped>
+
+.cyber-menu {
+  background: rgba(16, 16, 28, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(66, 211, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(66, 211, 255, 0.15);
 }
 
-  .el-menu-demo {
-    border-radius: 20px;
-    display: flex;
-    justify-content: space-between; /* 分散对齐子项 */
-  }
-  
-  .menu-item-right {
-    margin-left: auto; /* 推动子菜单到右侧 */
-  }
-  .logo{
-    width: 100px;
-  height: auto;
-  margin-right: 10px;
-  z-index: 1;
-  background-color: rgb(22, 55, 164);
-  }
-  
-  .logo-text{
-    color: #00FFFF;
-  font-size: 30px;
-  font-weight: bold;
-  margin-right: 10px;
-  z-index: 1;
-
-  }
-  .logo-container {
-  display: flex;
-  justify-content: space-between; /* Space between logo and text */
-  align-items: center;
-  width: 50%;
-  padding: 10px;
-  z-index: 1;
-  background-color: rgba(255, 255, 255,0.1);
-}
-  .menu-container {
-  display: flex;
-  flex-direction: column;
-  align-items: left;
-  background-color: #c68121;
-  border-radius: 20px;
-}
-.button-container {
-    position: relative; /* 使得button可以使用绝对定位 */
-    width: 100%; /* 可以根据需要调整 */
-    height: 100px; /* 根据需求设置高度 */
-    margin-bottom: 50px;
-    padding-bottom: 0;
-  }
-  
-  .shimmer-button {
-    padding: 2rem 4rem; /* 按钮内边距 */
-    font-size: 1.5rem; /* 字体大小 */
-    font-weight: bold; /* 字体加粗 */
-    border: none; /* 去掉边框 */
-    border-radius: 24px; /* 边角圆滑 */
-    position: absolute; /* 绝对定位 */
-    bottom: -20px; /* 将按钮向下移动一些，使其露出边缘 */
-    left: 50%; /* 水平居中 */
-    transform: translateX(-50%); /* 水平居中修正 */
-    color: transparent; /* 文字颜色为透明以实现光晕效果 */
-    background: conic-gradient(
-      from var(--shimmer-angle),
-      #fb00ff 0%,
-      #ff0000 10%,
-      #036e6e 20%
-    ); /* 渐变背景 */
-    animation: shimmer 2.5s linear infinite; /* 动画效果 */
-  }
-  
-  /* 按钮文字 */
-  .button-text {
-    position: relative; /* 文字相对位置 */
-    color: #3d9912; /* 文字颜色 */
-  }
-  
-  /* 动画关键帧 */
-  @keyframes shimmer {
-    0% {
-      --shimmer-angle: 0deg; /* 初始角度 */
-    }
-    100% {
-      --shimmer-angle: 360deg; /* 最终角度 */
-    }
-  }
-  
-  /* 按钮伪元素（用于更好的光晕效果） */
-  .shimmer-button::after {
-    content: attr(aria-label); /* 使用aria-label作为内容 */
-    position: absolute; /* 绝对定位 */
-    top: 2px; /* 上偏移 */
-    left: 2px; /* 左偏移 */
-    right: 2px; /* 右偏移 */
-    bottom: 2px; /* 下偏移 */
-    background-color: #0c5493; /* 背景颜色 */
-    border-radius: 22px; /* 边角圆滑 */
-    z-index: -1; /* 置于下方 */
-  }
-  .menu-container {
-  position: relative; /* 使得光晕效果在菜单周围 */
-  padding: 2px; /* 给菜单周围留出一些空间 */
-  z-index: -1;
+.menu-item {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.el-menu-demo {
-  position: relative; /* 确保菜单在光晕效果上方 */
-  z-index: 1; /* 确保菜单在光晕效果上方 */
+.menu-item:hover {
+  background: rgba(66, 211, 255, 0.1);
+  transform: translateY(-2px);
 }
 
-/* 光晕效果 */
-.shimmer-effect {
-  padding: 2rem 4rem;
+.menu-item::before {
+  content: '';
   position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  background: conic-gradient(
-    from 0deg,
-    rgba(0, 255, 255, 0.1) 0%,
-    rgba(0, 255, 255, 0.5) 50%,
-    rgba(0, 255, 255, 0.1) 100%
-  ); /* 使用渐变效果 */
-  filter: blur(30px); /* 模糊效果 */
-  z-index: 0; /* 确保光晕在菜单下面 */
-  animation: shmmer 2.5s linear infinite; /* 添加动画 */
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00FFFF);
+  animation: cyber-line 3s linear infinite;
 }
 
-@keyframes shmmer {
+.menu-icon {
+  font-size: 1.2em;
+  margin-right: 8px;
+  color: #00FFFF;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+}
+
+.neo-button {
+  position: relative;
+  padding: 1.5rem 3rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #E4F1FE;
+  background: linear-gradient(45deg, #141E30, #243B55);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.button-text {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(90deg, #E4F1FE, #00FFFF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+.button-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(66, 211, 255, 0.4) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.neo-button:hover .button-glow {
+  opacity: 1;
+  animation: pulse 2s infinite;
+}
+
+.neo-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes cyber-line {
   0% {
-    transform: rotate(0deg); /* 初始角度 */
+    left: -100%;
+  }
+  50% {
+    left: 100%;
   }
   100% {
-    transform: rotate(360deg); /* 旋转一周 */
+    left: 100%;
   }
 }
-  </style>
-  
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+}
+
+.menu-item-right {
+  margin-left: auto;
+  border-left: 1px solid rgba(66, 211, 255, 0.2);
+}
+
+/* Submenu styling */
+.el-submenu ::v-deep .el-submenu__title:hover {
+  background: rgba(66, 211, 255, 0.1) !important;
+}
+
+.el-submenu ::v-deep .el-menu {
+  background: rgba(16, 16, 28, 0.95) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(66, 211, 255, 0.2);
+  border-radius: 8px;
+}
+
+.el-menu-item {
+  transition: all 0.3s ease !important;
+}
+
+.el-menu-item:hover {
+  background: rgba(66, 211, 255, 0.1) !important;
+  color: #00FFFF !important;
+}
+</style>

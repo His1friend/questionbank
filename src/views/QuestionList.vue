@@ -5,7 +5,7 @@
       placeholder="请输入题目ID或名称进行搜索"
       style="margin-bottom: 16px;"
     />
-    <el-table :data="filteredTableData" style="width: 100%">
+    <el-table :data="paginatedData" style="width: 100%">
       <el-table-column prop="qid" label="题目 ID" width="100" />
       <el-table-column prop="questionName" label="题目" />
       <el-table-column label="题型" width="120">
@@ -25,6 +25,14 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      background
+      layout="prev, pager, next"
+      :current-page="currentPage"
+      :page-size="pageSize"
+      :total="filteredTableData.length"
+      @current-change="handlePageChange"
+    />
   </el-scrollbar>
   <QuestionDetail v-if="detailVisible" :qid="currentQid" />
   <QuestionUpdateView v-if="updateVisable" :qid="currentQid" />
@@ -43,6 +51,8 @@ const detailVisible = ref(false);
 const updateVisable = ref(false);
 const currentQid = ref(null);
 const searchQuery = ref('');
+const currentPage = ref(1);
+const pageSize = ref(10);
 const categoryMap = {
   1: '单选题',
   2: '多选题',
@@ -55,6 +65,13 @@ const filteredTableData = computed(() => {
     item.qid.toString().includes(searchQuery.value) ||
     item.questionName.includes(searchQuery.value)
   )
+})
+
+// 计算属性用于获取当前页的数据
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredTableData.value.slice(start, end);
 })
 
 // 在组件挂载时获取数据
@@ -105,6 +122,10 @@ const viewDetails = (qid) => {
 const editQuestion = (qid) => {
   currentQid.value = qid;
   updateVisable.value = !updateVisable.value;
+};
+
+const handlePageChange = (newPage) => {
+  currentPage.value = newPage;
 };
 </script>
 

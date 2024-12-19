@@ -1,32 +1,38 @@
 <template>
   <div class="network-container">
-    <svg ref="networkRef" width="700" height="700" display: block></svg>
-    <div class="tooltip" ref="tooltipRef"></div>
-    <el-dialog v-model="dialogVisible" >
-      <el-form :model="selectedNode" label-width="100px">
-        <el-form-item label="ID">
+    <div class="svg-container" ref="containerRef">
+      <svg ref="networkRef" :width="width" :height="height">
+        <defs>
+          <!-- 定义箭头 -->
+          <marker id="arrowhead" viewBox="0 -5 10 10" refX="20" refY="0" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,-5L10,0L0,5" fill="#999"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="tooltip" ref="tooltipRef"></div>
+    </div>
+    
+    <!-- 对话框 -->
+    <el-dialog v-model="dialogVisible" width="80%" destroy-on-close>
+      <el-form label-width="120px">
+        <el-form-item label="节点ID">
           <el-input v-model="selectedNode.id" disabled></el-input>
         </el-form-item>
-        <el-form-item label="Label">
+        <el-form-item label="节点名称">
           <el-input v-model="selectedNode.label"></el-input>
         </el-form-item>
-        <el-form-item label="Description">
-          <el-input v-model="selectedNode.description" type="textarea"></el-input>
+        <el-form-item label="描述">
+          <el-input type="textarea" v-model="selectedNode.description"></el-input>
         </el-form-item>
-        <el-form-item label="题目">
-          <el-table :data="filteredQuestionList" style="width: 100%" @row-click="selectQuestion">
-            <el-table-column prop="qid" label="题目 ID" width="100" />
-            <el-table-column prop="questionName" label="题目" />
-            <el-table-column label="题型" width="120">
-              <template #default="scope">
-                <span>{{ categoryMap[scope.row.categoryId] || '未知题型' }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="difficultyLevel" label="难度" />
-            <el-table-column prop="passedNumber" label="通过次数" />
-            <el-table-column prop="totalNumber" label="总数" />
-            <el-table-column prop="knowledgeNode" label="知识点" />
-          </el-table>
+        <el-form-item label="题目ID">
+          <el-select v-model="selectedNode.questionId" placeholder="请选择题目">
+            <el-option
+              v-for="question in filteredQuestionList"
+              :key="question.qid"
+              :label="question.title"
+              :value="question.qid"
+            ></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -40,7 +46,7 @@
 </template>
 
 <script>
-import { onMounted, ref, nextTick, watch, onUnmounted } from 'vue';
+import { onMounted, ref, nextTick, onUnmounted } from 'vue';
 import * as d3 from 'd3';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
@@ -49,12 +55,14 @@ export default {
   setup() {
     const networkRef = ref(null);
     const tooltipRef = ref(null);
+    const containerRef = ref(null);
     const dialogVisible = ref(false);
     const selectedNode = ref({});
     const tableData = ref([]);
     const questionList = ref([]);
+    const width = ref(0);
+    const height = ref(0);
     let simulation;
-    let resizeObserver;
 
     const getRelationColor = (relation) => {
       const colorMap = {
@@ -114,16 +122,21 @@ export default {
       return filteredQuestions;
     };
 
-    const selectQuestion = (row) => {
-      console.log("Selected question:", row);
-      selectedNode.value.questionId = row.qid;
+    const updateDimensions = () => {
+      if (containerRef.value) {
+        width.value = containerRef.value.clientWidth;
+        height.value = containerRef.value.clientHeight;
+        if (simulation) {
+          simulation.force("center", d3.forceCenter(width.value / 2, height.value / 2)).alphaTarget(0.3).restart();
+        }
+      }
     };
 
     const createNetwork = (nodes, links) => {
       const svg = d3.select(networkRef.value);
       if (!svg.empty()) {
-        const width = +svg.attr("width");
-        const height = +svg.attr("height");
+        // 设置初始宽度和高度
+        svg.attr("width", width.value).attr("height", height.value);
 
         // 清除之前的内容
         svg.selectAll("*").remove();
@@ -158,9 +171,17 @@ export default {
         });
 
         simulation = d3.forceSimulation(nodes)
-          .force("link", d3.forceLink().id(d => d.id).distance(100))
-          .force("charge", d3.forceManyBody().strength(-200))
-          .force("center", d3.forceCenter(width / 2, height / 2));
+          .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+          .force("charge", d3.forceManyBody().strength(-10)) // 减少斥力强度
+          .force("center", d3.forceCenter(width.value / 2, height.value / 2));
+
+        // 添加边界约束
+        simulation.on("tick", () => {
+          nodes.forEach(node => {
+            node.x = Math.max(node.r, Math.min(width.value - node.r, node.x));
+            node.y = Math.max(node.r, Math.min(height.value - node.r, node.y));
+          });
+        });
 
         // 添加连接线
         const linkGroup = svg.append("g").attr("class", "links");
@@ -229,7 +250,7 @@ export default {
           })
           .on("click", function(event, d) {
             selectedNode.value = { ...d }; 
-            fetchQuestions(); // 获取题目列表
+            selectedNode.value.filteredQuestionList = filterQuestionsByKid(d.id);
             dialogVisible.value = true;
           })
           .call(d3.drag()
@@ -307,8 +328,6 @@ export default {
       }
     };
 
-    const filteredQuestionList = ref([]);
-
     const throttle = (func, limit) => {
       let lastFunc;
       let lastRan;
@@ -331,93 +350,79 @@ export default {
     };
 
     const handleResize = throttle(() => {
-      const svg = d3.select(networkRef.value);
-      if (!svg.empty() && simulation) {
-        const width = +svg.attr("width");
-        const height = +svg.attr("height");
-        simulation.force("center", d3.forceCenter(width / 2, height / 2)).alphaTarget(0.3).restart();
-      }
+      updateDimensions();
     }, 200);
 
-    const categoryMap = {
-      1: '单选题',
-      2: '多选题',
-      3: '判断题',
-      4: '填空题',
-      5: '简答题'
-    };
-
-    onMounted(() => {
+    onMounted(async () => {
+      // 使用nextTick确保DOM已经更新
+      await nextTick();
+      updateDimensions();
       fetchData();
-      fetchQuestions(); // 初始化题目列表
+      fetchQuestions();
 
-      resizeObserver = new ResizeObserver(handleResize);
-      resizeObserver.observe(networkRef.value);
+      // 监听窗口大小变化
+      window.addEventListener('resize', handleResize);
     });
 
     onUnmounted(() => {
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
+      window.removeEventListener('resize', handleResize);
     });
-
-    watch(
-      () => selectedNode.value.id,
-      (newKid) => {
-        console.log("Selected node ID changed to:", newKid);
-        filteredQuestionList.value = filterQuestionsByKid(newKid);
-      }
-    );
 
     return {
       networkRef,
       tooltipRef,
+      containerRef,
       dialogVisible,
       selectedNode,
-      saveChanges,
       tableData,
       questionList,
-      filteredQuestionList,
-      fetchQuestions,
-      filterQuestionsByKid,
-      selectQuestion,
-      categoryMap
+      width,
+      height,
+      saveChanges
     };
   }
 };
 </script>
 
 <style scoped>
+.network-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 60px); /* 减去导航栏的高度 */
+  background-color: #f0f2f5;
+}
+
+.svg-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .tooltip {
   position: absolute;
   text-align: center;
-  padding: 5px;
+  padding: 8px;
   font: 12px sans-serif;
-  background: rgba(176, 196, 222, 0.8);
+  background: rgba(176, 196, 222, 0.9);
   border-radius: 8px;
   pointer-events: none;
   opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .node {
   cursor: pointer;
-  transition: all 0.3s ease;
+  stroke: white;
+  stroke-width: 1.5px;
 }
 
 .node:hover {
-  stroke-width: 4px;
-  transform: scale(1.1);
+  stroke-width: 3px;
 }
 
 .link {
-  transition: opacity 0.3s ease;
-}
-
-.network-container {
-  width: 100%;
-  height: 100vh; /* 使用视窗单位 */
-  position: relative;
-  overflow: hidden;
+  stroke: #999;
+  stroke-opacity: 0.6;
 }
 </style>
 
