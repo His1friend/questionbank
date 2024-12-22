@@ -303,31 +303,6 @@ export default {
       d.fx = null;
       d.fy = null;
     };
-
-    const saveChanges = async () => {
-      try {
-        await axios.put('/knowledge/node', {
-          kid: selectedNode.value.id,
-          kname: selectedNode.value.label,
-          description: selectedNode.value.description,
-          questionId: selectedNode.value.questionId
-        });
-        ElMessage.success('更新成功');
-
-        const updatedNodeIndex = tableData.value.findIndex(node => node.id === selectedNode.value.id);
-        if (updatedNodeIndex !== -1) {
-          tableData.value[updatedNodeIndex].label = selectedNode.value.label;
-          tableData.value[updatedNodeIndex].description = selectedNode.value.description;
-          tableData.value[updatedNodeIndex].questionId = selectedNode.value.questionId;
-        }
-
-        dialogVisible.value = false;
-      } catch (error) {
-        console.error("Error updating data:", error);
-        ElMessage.error('更新失败');
-      }
-    };
-
     const throttle = (func, limit) => {
       let lastFunc;
       let lastRan;
@@ -352,7 +327,29 @@ export default {
     const handleResize = throttle(() => {
       updateDimensions();
     }, 200);
+    const saveChanges = async () => {
+      try {
+        await axios.put('/knowledge/node', {
+          kid: selectedNode.value.id,
+          kname: selectedNode.value.label,
+          description: selectedNode.value.description,
+          questionId: selectedNode.value.questionId
+        });
+        ElMessage.success('更新成功');
 
+        const updatedNodeIndex = tableData.value.findIndex(node => node.id === selectedNode.value.id);
+        if (updatedNodeIndex !== -1) {
+          tableData.value[updatedNodeIndex].label = selectedNode.value.label;
+          tableData.value[updatedNodeIndex].description = selectedNode.value.description;
+          tableData.value[updatedNodeIndex].questionId = selectedNode.value.questionId;
+        }
+
+        dialogVisible.value = false;
+      } catch (error) {
+        console.error("Error updating data:", error);
+        ElMessage.error('更新失败');
+      }
+    };
     onMounted(async () => {
       // 使用nextTick确保DOM已经更新
       await nextTick();
