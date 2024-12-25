@@ -1,37 +1,23 @@
 <template>
-  <div class="network-container">
-    <div class="svg-container" ref="containerRef">
-      <svg ref="networkRef" :width="width" :height="height">
-        <defs>
-          <!-- 定义箭头 -->
-          <marker id="arrowhead" viewBox="0 -5 10 10" refX="20" refY="0" markerWidth="8" markerHeight="8" orient="auto">
-            <path d="M0,-5L10,0L0,5" fill="#999"/>
-          </marker>
-        </defs>
-      </svg>
-      <div class="tooltip" ref="tooltipRef"></div>
-    </div>
-    
-    <!-- 对话框 -->
-    <el-dialog v-model="dialogVisible" width="80%" destroy-on-close>
-      <el-form label-width="120px">
-        <el-form-item label="节点ID">
-          <el-input v-model="selectedNode.id" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="节点名称">
+  <div ref="containerRef" class="network-container">
+    <svg ref="networkRef"></svg>
+    <div ref="tooltipRef" class="tooltip"></div>
+    <el-dialog v-model="dialogVisible" title="编辑节点信息" width="30%">
+      <el-form :model="selectedNode" label-width="120px">
+        <el-form-item label="名称">
           <el-input v-model="selectedNode.label"></el-input>
         </el-form-item>
         <el-form-item label="描述">
           <el-input type="textarea" v-model="selectedNode.description"></el-input>
         </el-form-item>
-        <el-form-item label="题目ID">
-          <el-select v-model="selectedNode.questionId" placeholder="请选择题目">
+        <el-form-item label="关联题目ID">
+          <el-select v-model="selectedNode.questionId" placeholder="请选择关联题目">
             <el-option
-              v-for="question in filteredQuestionList"
+              v-for="question in selectedNode.filteredQuestionList"
               :key="question.qid"
-              :label="question.title"
-              :value="question.qid"
-            ></el-option>
+              :label="question.questionText"
+              :value="question.qid">
+            </el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -99,7 +85,6 @@ export default {
         console.error("Error fetching data:", error);
       }
     };
-
 
     const createNetwork = (nodes, links) => {
       const svg = d3.select(networkRef.value);
@@ -220,6 +205,8 @@ export default {
           .on("click", function(event, d) {
             selectedNode.value = { ...d }; 
             selectedNode.value.filteredQuestionList = filterQuestionsByKid(d.id);
+            console.log("Selected Node:", selectedNode.value); // Debugging line
+            console.log("Filtered Questions:", selectedNode.value.filteredQuestionList); // Debugging line
             dialogVisible.value = true;
           })
           .call(d3.drag()
@@ -272,6 +259,7 @@ export default {
       d.fx = null;
       d.fy = null;
     };
+
     const throttle = (func, limit) => {
       let lastFunc;
       let lastRan;
@@ -296,6 +284,7 @@ export default {
     const handleResize = throttle(() => {
       updateDimensions();
     }, 200);
+
     const saveChanges = async () => {
       try {
         await axios.put('/knowledge/node', {
@@ -351,15 +340,12 @@ export default {
         }
       }
     };
-    onMounted(async () => {
-      // 使用nextTick确保DOM已经更新
-      await nextTick();
-      updateDimensions();
-      fetchData();
-      fetchQuestions();
 
-      // 监听窗口大小变化
+    onMounted(async () => {
       window.addEventListener('resize', handleResize);
+      updateDimensions();
+      await fetchData();
+      await fetchQuestions();
     });
 
     onUnmounted(() => {
@@ -374,8 +360,6 @@ export default {
       selectedNode,
       tableData,
       questionList,
-      width,
-      height,
       saveChanges
     };
   }
@@ -386,40 +370,19 @@ export default {
 .network-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 60px); /* 减去导航栏的高度 */
-  background-color: #f0f2f5;
-}
-
-.svg-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  height: 100vh;
 }
 
 .tooltip {
   position: absolute;
-  text-align: center;
-  padding: 8px;
-  font: 12px sans-serif;
-  background: rgba(176, 196, 222, 0.9);
-  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.node {
-  cursor: pointer;
-  stroke: white;
-  stroke-width: 1.5px;
-}
-
-.node:hover {
-  stroke-width: 3px;
-}
-
-.link {
-  stroke: #999;
-  stroke-opacity: 0.6;
 }
 </style>
+
+
+
