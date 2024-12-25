@@ -6,7 +6,7 @@
     <div ref="barChart" style="width: 80%; height: 400px; margin: 0 auto;"></div>
     <p v-if="!loaded">Loading...</p>
 
-    <!-- 折线图：难度级别通过人数 -->
+    <!-- 折线图：难度级别总通过人数 -->
     <div ref="lineChart" style="width: 80%; height: 400px; margin: 0 auto;"></div>
     <p v-if="!loaded">Loading...</p>
 
@@ -39,6 +39,7 @@ export default {
           // 处理返回的数据
           const difficultyCounts = {};
           const passedCounts = {};
+          const totalCounts = {};
           const categoryCounts = {};
 
           result.data.forEach(item => {
@@ -46,16 +47,16 @@ export default {
             const level = item.difficultyLevel;
             const categoryId = item.categoryId;
             const passedNumber = item.passedNumber;
+            const totalNumber = item.totalNumber;
 
             if (!difficultyCounts[level]) {
               difficultyCounts[level] = 0;
+              passedCounts[level] = 0;
+              totalCounts[level] = 0;
             }
             difficultyCounts[level]++;
-
-            if (!passedCounts[level]) {
-              passedCounts[level] = 0;
-            }
             passedCounts[level] += passedNumber;
+            totalCounts[level] += totalNumber;
 
             if (!categoryCounts[categoryId]) {
               categoryCounts[categoryId] = 0;
@@ -65,21 +66,23 @@ export default {
 
           const difficultyLabels = [];
           const difficultyData = [];
-          const passedData = [];
+          const passRates = [];
+          const totalPassedCounts = [];
 
           for (const level in difficultyCounts) {
             difficultyLabels.push(`Level ${level}`);
             difficultyData.push(difficultyCounts[level]);
-            passedData.push(passedCounts[level]);
+            const passRate = (passedCounts[level] / totalCounts[level]) * 100;
+            passRates.push(passRate.toFixed(2));
+            totalPassedCounts.push(passedCounts[level]);
           }
 
-          const categoryLabels = [];
-          const categoryData = [];
-
-          for (const categoryId in categoryCounts) {
-            categoryLabels.push(`Category ${categoryId}`);
-            categoryData.push(categoryCounts[categoryId]);
-          }
+          const categoryLabels = ['Choice', 'Calculation', 'Short Answer'];
+          const categoryData = [
+            categoryCounts[1] || 0,
+            categoryCounts[2] || 0,
+            categoryCounts[3] || 0,
+          ];
 
           // 初始化柱状图：难度级别题目数量
           const barChartInstance = echarts.init(barChart.value);
@@ -106,26 +109,37 @@ export default {
           };
           barChartInstance.setOption(barOption);
 
-          // 初始化折线图：难度级别通过人数
+          // 初始化折线图：难度级别总通过人数
           const lineChartInstance = echarts.init(lineChart.value);
           const lineOption = {
             title: {
-              text: 'Passed Number by Difficulty Level (Line Chart)',
+              text: 'Total Passed Numbers by Difficulty Level (Line Chart)',
               left: 'center',
             },
-            tooltip: {},
+            tooltip: {
+              trigger: 'axis',
+              formatter: function (params) {
+                return params.map(param => `${param.seriesName}: ${param.value}`).join('<br/>');
+              },
+            },
             xAxis: {
               data: difficultyLabels,
             },
-            yAxis: {},
+            yAxis: {
+              axisLabel: {
+                formatter: '{value}',
+              },
+            },
             series: [
               {
-                name: 'Passed Number',
+                name: 'Total Passed Numbers',
                 type: 'line',
-                data: passedData,
+                data: totalPassedCounts,
                 itemStyle: {
                   color: 'rgba(255, 99, 132, 0.6)',
                 },
+                symbolSize: 8,
+                smooth: true,
               },
             ],
           };
@@ -133,6 +147,7 @@ export default {
 
           // 初始化饼图：题目种类数量
           const pieChartInstance = echarts.init(pieChart.value);
+          const colors = ['#FF6384', '#36A2EB', '#FFCE56'];
           const pieOption = {
             title: {
               text: 'Question Categories (Pie Chart)',
@@ -140,26 +155,35 @@ export default {
             },
             tooltip: {
               trigger: 'item',
+              formatter: '{a} <br/>{b}: {c} ({d}%)',
             },
             legend: {
               orient: 'vertical',
-              left: 'left',
+              right: 10,
             },
             series: [
               {
                 name: 'Number of Questions',
                 type: 'pie',
                 radius: '50%',
+                center: ['50%', '60%'],
                 data: categoryLabels.map((label, index) => ({
                   name: label,
                   value: categoryData[index],
                 })),
+                itemStyle: {
+                  color: (params) => colors[params.dataIndex % colors.length],
+                },
                 emphasis: {
                   itemStyle: {
                     shadowBlur: 10,
                     shadowOffsetX: 0,
                     shadowColor: 'rgba(0, 0, 0, 0.5)',
                   },
+                },
+                label: {
+                  show: true,
+                  formatter: '{b}: {c}',
                 },
               },
             ],

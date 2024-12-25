@@ -34,8 +34,17 @@
       @current-change="handlePageChange"
     />
   </el-scrollbar>
-  <QuestionDetail v-if="detailVisible" :qid="currentQid" />
-  <QuestionUpdateView v-if="updateVisable" :qid="currentQid" />
+  <QuestionDetail v-if="detailVisible" :qid="currentQid" @close="closeDetailView" />
+  
+  <!-- 使用 el-dialog 来显示 QuestionUpdateView -->
+  <el-dialog
+    title="编辑题目"
+    v-model="updateVisible"
+    width="80%"
+    :before-close="closeUpdateView"
+  >
+    <QuestionUpdateView :qid="currentQid" @close="closeUpdateView" />
+  </el-dialog>
 </template>
 
 <script setup>
@@ -48,14 +57,14 @@ import QuestionUpdateView from './QuestionUpdateView.vue';
 // 定义表格数据
 const tableData = ref([])
 const detailVisible = ref(false);
-const updateVisable = ref(false);
+const updateVisible = ref(false);
 const currentQid = ref(null);
 const searchQuery = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const categoryMap = {
   1: '单选题',
-  2: '多选题',
+  2: '计算题',
   3: '简答题'
 }
 
@@ -117,17 +126,35 @@ const deleteQuestion = async (qid) => {
 
 const viewDetails = (qid) => {
   currentQid.value = qid;
-  detailVisible.value = !detailVisible.value;
+  detailVisible.value = true;
+  updateVisible.value = false; // 关闭编辑视图
 };
+
 const editQuestion = (qid) => {
   currentQid.value = qid;
-  updateVisable.value = !updateVisable.value;
+  updateVisible.value = true;
+  detailVisible.value = false; // 关闭详情视图
 };
 
 const handlePageChange = (newPage) => {
   currentPage.value = newPage;
 };
+
+const closeDetailView = () => {
+  detailVisible.value = false;
+};
+
+const closeUpdateView = () => {
+  updateVisible.value = false;
+};
 </script>
+
+<style scoped>
+/* 添加一些基本样式 */
+.el-scrollbar {
+  height: calc(100vh - 60px); /* 确保滚动条容器的高度 */
+}
+</style>
 
 
 

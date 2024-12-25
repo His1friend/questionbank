@@ -100,37 +100,6 @@ export default {
       }
     };
 
-    const fetchQuestions = async () => {
-      try {
-        console.log("Fetching questions...");
-        const response = await axios.get('/questions/list');
-        if (response.data.code === 1) {
-          questionList.value = response.data.data; // 将后端数据赋值给题目列表
-          console.log("Fetched questions successfully:", questionList.value);
-        } else {
-          console.error('获取题目数据失败:', response.data.msg);
-        }
-      } catch (error) {
-        console.error('请求题目数据失败:', error);
-      }
-    };
-
-    const filterQuestionsByKid = (kid) => {
-      console.log("Filtering questions by kid:", kid);
-      const filteredQuestions = questionList.value.filter(question => question.knowledgeNode === kid);
-      console.log("Filtered questions:", filteredQuestions);
-      return filteredQuestions;
-    };
-
-    const updateDimensions = () => {
-      if (containerRef.value) {
-        width.value = containerRef.value.clientWidth;
-        height.value = containerRef.value.clientHeight;
-        if (simulation) {
-          simulation.force("center", d3.forceCenter(width.value / 2, height.value / 2)).alphaTarget(0.3).restart();
-        }
-      }
-    };
 
     const createNetwork = (nodes, links) => {
       const svg = d3.select(networkRef.value);
@@ -350,6 +319,38 @@ export default {
         ElMessage.error('更新失败');
       }
     };
+    
+    const fetchQuestions = async () => {
+      try {
+        console.log("Fetching questions...");
+        const response = await axios.get('/questions/list');
+        if (response.data.code === 1) {
+          questionList.value = response.data.data; // 将后端数据赋值给题目列表
+          console.log("Fetched questions successfully:", questionList.value);
+        } else {
+          console.error('获取题目数据失败:', response.data.msg);
+        }
+      } catch (error) {
+        console.error('请求题目数据失败:', error);
+      }
+    };
+
+    const filterQuestionsByKid = (kid) => {
+      console.log("Filtering questions by kid:", kid);
+      const filteredQuestions = questionList.value.filter(question => question.knowledgeNode === kid);
+      console.log("Filtered questions:", filteredQuestions);
+      return filteredQuestions;
+    };
+
+    const updateDimensions = () => {
+      if (containerRef.value) {
+        width.value = containerRef.value.clientWidth;
+        height.value = containerRef.value.clientHeight;
+        if (simulation) {
+          simulation.force("center", d3.forceCenter(width.value / 2, height.value / 2)).alphaTarget(0.3).restart();
+        }
+      }
+    };
     onMounted(async () => {
       // 使用nextTick确保DOM已经更新
       await nextTick();
@@ -422,6 +423,3 @@ export default {
   stroke-opacity: 0.6;
 }
 </style>
-
-
-
