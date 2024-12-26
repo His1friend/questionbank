@@ -5,6 +5,7 @@
       placeholder="请输入题目ID或名称进行搜索"
       style="margin-bottom: 16px;"
     />
+    <el-button @click="exportToExcel" type="success" size="small" style="margin-bottom: 16px;">导出为Excel</el-button>
     <el-table :data="paginatedData" style="width: 100%">
       <el-table-column prop="qid" label="题目 ID" width="100" />
       <el-table-column prop="questionName" label="题目" />
@@ -53,6 +54,8 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import QuestionDetail from './QuestionDetail.vue';
 import axios from 'axios'
 import QuestionUpdateView from './QuestionUpdateView.vue';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 // 定义表格数据
 const tableData = ref([])
@@ -146,6 +149,40 @@ const closeDetailView = () => {
 
 const closeUpdateView = () => {
   updateVisible.value = false;
+};
+
+const exportToExcel = async () => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('题目列表');
+
+  // 添加表头
+  worksheet.columns = [
+    { header: '题目 ID', key: 'qid', width: 10 },
+    { header: '题目', key: 'questionName', width: 50 },
+    { header: '题型', key: 'category', width: 20 },
+    { header: '难度', key: 'difficultyLevel', width: 10 },
+    { header: '通过次数', key: 'passedNumber', width: 15 },
+    { header: '总数', key: 'totalNumber', width: 10 },
+    { header: '知识点', key: 'knowledgeNode', width: 30 }
+  ];
+
+  // 添加数据行
+  tableData.value.forEach(item => {
+    worksheet.addRow({
+      qid: item.qid,
+      questionName: item.questionName,
+      category: categoryMap[item.categoryId] || '未知题型',
+      difficultyLevel: item.difficultyLevel,
+      passedNumber: item.passedNumber,
+      totalNumber: item.totalNumber,
+      knowledgeNode: item.knowledgeNode
+    });
+  });
+
+  // 导出 Excel 文件
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  saveAs(blob, '题目列表.xlsx');
 };
 </script>
 
