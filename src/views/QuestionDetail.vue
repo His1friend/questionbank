@@ -14,7 +14,7 @@
         {{ error }}
       </div>
     </div>
-    
+    <el-button @click="$emit('close')">关闭</el-button>
     <!-- 题目内容 -->
     <template v-if="question && !loading && !error">
       <div class="card-header">
